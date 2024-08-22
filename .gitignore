@@ -1,0 +1,4 @@
+.idea
+.venv
+HAToDB/config.py
+credentials.json

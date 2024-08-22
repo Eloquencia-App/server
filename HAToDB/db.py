@@ -31,5 +31,7 @@ class db:
             expiration_date = datetime.strptime(member["payments"][0]["date"], '%Y-%m-%d %H:%M:%S')
             expiration_date = expiration_date.replace(year=expiration_date.year + 1)
 
-            self.execute("INSERT INTO members (name, firstname, email, token, registrationDate, expirationDate) VALUES (?, ?, ?, ?, ?, ?)",
+            self.execute("SELECT COUNT(*) FROM members WHERE email=?", (member["customFields"][0]["answer"],))
+            if self.cursor.fetchone()[0] == 0:
+                self.execute("INSERT INTO members (name, firstname, email, token, registrationDate, expirationDate) VALUES (?, ?, ?, ?, ?, ?)",
                             (member["user"]["lastName"], member["user"]["firstName"], member["customFields"][0]["answer"], "token", member["payments"][0]["date"], expiration_date))

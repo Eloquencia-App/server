@@ -5,7 +5,6 @@ import requests
 import config
 import time
 import db
-import mail
 
 def auth():
     if "credentials.json" in os.listdir():
@@ -97,5 +96,5 @@ if __name__ == "__main__":
     members = get_members()
 
     # Save members to database
-    db = db.db()
+    db = db.Db()
     db.save_members(members)

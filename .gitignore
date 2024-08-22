@@ -1,4 +1,4 @@
 .idea
 .venv
 HAToDB/config.py
-credentials.json
+HAToDB/credentials.json

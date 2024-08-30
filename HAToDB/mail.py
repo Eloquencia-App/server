@@ -20,7 +20,7 @@ class Mail:
         msg["Subject"] = "Finalisation de votre inscription chez Eloquéncia"
         body = f"Bonjour {firstname},\n\n" \
          f"Bienvenue chez Eloquéncia !\n\n" \
-            f"Pour finaliser votre inscription, veuillez cliquer sur le lien suivant : http://localhost:5000/confirm?token={token}\n\n" \
+            f"Pour finaliser votre inscription, veuillez cliquer sur le lien suivant : https://eloquencia.org/registrationconfirm?token={token}\n\n" \
             f"A bientôt !"
         msg.attach(MIMEText(body))
 

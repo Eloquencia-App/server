@@ -86,6 +86,38 @@ def get_members():
         return members
     print(f"Failed to get HelloAsso members:", raw_response.text)
 
+def get_manualmembers():
+    with open("credentials.json", "r") as f:
+        credentials = json.load(f)
+        f.close()
+
+    url = f"https://api.helloasso-sandbox.com/v5/organizations/{config.helloasso_organization_slug}/forms/Membership/{config.helloasso_form_slug}/items"
+    headers = {"Authorization": f"Bearer {credentials['access_token']}"}
+    params = {
+        "pageSize": 100,
+        "pageIndex": 1,
+        "withDetails": True,
+        "itemStates": "Registered"
+    }
+    raw_response = requests.get(url, headers=headers, params=params)  # retrieve page 1
+    if raw_response.ok:
+        response = raw_response.json()
+        first_page = int(response["pagination"]["pageIndex"])
+        last_page = min(100, int(response["pagination"]["totalPages"]))
+        members: list = response["data"]
+        print("Received,", len(response["data"]), "members from page", response["pagination"]["pageIndex"], "over", response["pagination"]["totalPages"])
+        for _ in list(range(first_page, last_page)):
+            params["pageIndex"] += 1
+            raw_response = requests.get(url, headers=headers, params=params)  # retrieve page 2 and above
+            if raw_response.ok:
+                response = raw_response.json()
+                members.extend(response["data"])
+                print("Received,", len(response["data"]), f"members from page {response['pagination']['pageIndex']}/{response['pagination']['totalPages']}")
+            else:
+                raise IOError(f"Retrieving page failed with HTTP error {raw_response.status_code} from HelloAsso")
+        return members
+    print(f"Failed to get HelloAsso members:", raw_response.text)
+
 def saveToJson(data, filename):
     with open(filename, "w") as f:
         dump(data, f, indent=4)
@@ -94,7 +126,9 @@ def saveToJson(data, filename):
 if __name__ == "__main__":
     auth()
     members = get_members()
+    manualmembers = get_manualmembers()
 
     # Save members to database
     db = db.Db()
-    db.save_members(members)
+    db.save_members(members, "auto")
+    db.save_members(manualmembers, "manual")

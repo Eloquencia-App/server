@@ -26,20 +26,40 @@ class Db:
         self.conn.commit()
         return self.cursor
 
-    def save_members(self, members):
+    def save_members(self, members, type):
         email = mail.Mail()
-        for member in members:
-            self.execute("SELECT COUNT(*) FROM members WHERE email=?", (member["customFields"][0]["answer"],))
-            if self.cursor.fetchone()[0] == 0:
-                # convert from HelloAsso format to database format
-                member["payments"][0]["date"] = member["payments"][0]["date"].split("T")[0] + " " + \
-                                                member["payments"][0]["date"].split("T")[1].split(".")[0]
-                expiration_date = datetime.strptime(member["payments"][0]["date"], '%Y-%m-%d %H:%M:%S').replace(year=datetime.now().year + 1)
+        if type == "auto":
+            for member in members:
+                self.execute("SELECT COUNT(*) FROM members WHERE email=?", (member["customFields"][0]["answer"],))
+                if self.cursor.fetchone()[0] == 0:
+                    # convert from HelloAsso format to database format
+                    member["payments"][0]["date"] = member["payments"][0]["date"].split("T")[0] + " " + \
+                                                    member["payments"][0]["date"].split("T")[1].split(".")[0]
+                    expiration_date = datetime.strptime(member["payments"][0]["date"], '%Y-%m-%d %H:%M:%S').replace(year=datetime.now().year + 1)
 
-                token = random.randint(100000, 999999)
+                    token = random.randint(100000, 999999)
 
-                self.execute("INSERT INTO members (name, firstname, email, registrationToken, registrationDate, expirationDate) VALUES (?, ?, ?, ?, ?, ?)",
-                            (member["user"]["lastName"], member["user"]["firstName"], member["customFields"][0]["answer"], token, member["payments"][0]["date"], expiration_date))
+                    self.execute("INSERT INTO members (name, firstname, email, registrationToken, registrationDate, expirationDate) VALUES (?, ?, ?, ?, ?, ?)",
+                                (member["user"]["lastName"], member["user"]["firstName"], member["customFields"][0]["answer"], token, member["payments"][0]["date"], expiration_date))
 
-                email.sendRegistrationMail(member["user"]["firstName"], token, member["customFields"][0]["answer"])
+                    email.sendRegistrationMail(member["user"]["firstName"], token, member["customFields"][0]["answer"])
+        else:
+            for member in members:
+                self.execute("SELECT COUNT(*) FROM members WHERE email=?", (member["customFields"][0]["answer"],))
+                if self.cursor.fetchone()[0] == 0:
+                    # convert from HelloAsso format to database format 2024-09-01T00:00:00+02:00
+                    print(member["payments"][0]["date"])
+                    member["payments"][0]["date"] = member["payments"][0]["date"].split("T")[0] + " " + \
+                                                    member["payments"][0]["date"].split("T")[1].split("+")[0]
+                    expiration_date = datetime.strptime(member["payments"][0]["date"], '%Y-%m-%d %H:%M:%S').replace(
+                        year=datetime.now().year + 1)
+
+                    token = random.randint(100000, 999999)
+
+                    self.execute(
+                        "INSERT INTO members (name, firstname, email, registrationToken, registrationDate, expirationDate) VALUES (?, ?, ?, ?, ?, ?)",
+                        (member["user"]["lastName"], member["user"]["firstName"], member["customFields"][0]["answer"],
+                         token, member["payments"][0]["date"], expiration_date))
+
+                    email.sendRegistrationMail(member["user"]["firstName"], token, member["customFields"][0]["answer"])
         del email

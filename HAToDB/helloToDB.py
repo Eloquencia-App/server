@@ -16,7 +16,7 @@ def auth():
 
     if credentials["expires"] == 0:
         print("No credentials found, authenticating with HelloAsso")
-        url = "https://api.helloasso-sandbox.com/oauth2/token"
+        url = "https://api.helloasso.com/oauth2/token"
         body = {
             "client_id": config.helloasso_client_id,
             "client_secret": config.helloasso_client_secret,
@@ -36,7 +36,7 @@ def auth():
             raise IOError(f"Failed to authenticate with HelloAsso: {response_data}")
     elif credentials["expires"] < time.time():
         print("Credentials expired, refreshing with HelloAsso")
-        url = "https://api.helloasso-sandbox.com/oauth2/token"
+        url = "https://api.helloasso.com/oauth2/token"
         body = {
             "grant_type": "refresh_token",
             "refresh_token": credentials["refresh_token"],
@@ -59,7 +59,7 @@ def get_members():
         credentials = json.load(f)
         f.close()
 
-    url = f"https://api.helloasso-sandbox.com/v5/organizations/{config.helloasso_organization_slug}/forms/Membership/{config.helloasso_form_slug}/items"
+    url = f"https://api.helloasso.com/v5/organizations/{config.helloasso_organization_slug}/forms/Membership/{config.helloasso_form_slug}/items"
     headers = {"Authorization": f"Bearer {credentials['access_token']}"}
     params = {
         "pageSize": 100,
@@ -91,7 +91,7 @@ def get_manualmembers():
         credentials = json.load(f)
         f.close()
 
-    url = f"https://api.helloasso-sandbox.com/v5/organizations/{config.helloasso_organization_slug}/forms/Membership/{config.helloasso_form_slug}/items"
+    url = f"https://api.helloasso.com/v5/organizations/{config.helloasso_organization_slug}/forms/Membership/{config.helloasso_form_slug}/items"
     headers = {"Authorization": f"Bearer {credentials['access_token']}"}
     params = {
         "pageSize": 100,
